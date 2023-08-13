@@ -1,26 +1,17 @@
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <chrono>
+#include <thread>
 
 #include <curl/curl.h>
 
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/c_local_time_adjustor.hpp>
 #include <boost/json/src.hpp>
-#include <chrono>
-#include <iostream>
-#include <stdexcept>
-#include <string>
-#include <thread>
-
-#include "boost/date_time/c_local_time_adjustor.hpp"
 
 namespace bj = boost::json;
-
-// HttpClient class definition
-
-#include <curl/curl.h>
-
-#include <iostream>
-#include <stdexcept>
-#include <string>
 
 class HttpClient {
  private:
@@ -59,10 +50,6 @@ class HttpClient {
     return response_string;
   }
 };
-
-// The rest of the code will be refactored in subsequent steps...
-
-// WeatherData class definition
 
 class WeatherData {
  private:
@@ -144,8 +131,6 @@ class WeatherData {
     }
   }
 };
-
-// Main function
 
 int main() {
   // Hardcoded latitude and longitude values
