@@ -124,6 +124,12 @@ class WeatherData {
                          .as_string()
                          .c_str();
         std::cout << "\n";
+        std::cout << alert.at("properties")
+                         .as_object()
+                         .at("description")
+                         .as_string()
+                         .c_str();
+        std::cout << "\n";
       }
       if (features.size()) std::cout << "\n";
     } catch (std::exception& e) {
