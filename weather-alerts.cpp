@@ -71,44 +71,31 @@ class WeatherData {
   }
 
   std::string getForecastForPeriod(int period) {
-    try {
       bj::object properties =
           parsed_data.as_object().at("properties").as_object();
       bj::object forecast =
           properties.at("periods").as_array().at(period).as_object();
       return std::string(forecast.at("name").as_string().c_str()) + ": " +
              std::string(forecast.at("detailedForecast").as_string().c_str());
-    } catch (const std::exception& e) {
-      return std::string("Error: ") + e.what();
-    }
   }
 
   std::string getUpdateTime() {
-    try {
       bj::object properties =
           parsed_data.as_object().at("properties").as_object();
       return "Updated: \t" +
              std::string(boost::posix_time::to_simple_string(convertToLocalTime(
                  properties.at("updated").as_string().c_str())));
-    } catch (const std::exception& e) {
-      return std::string("Error: ") + e.what();
-    }
   }
 
   std::string getGeneratedTime() {
-    try {
       bj::object properties =
           parsed_data.as_object().at("properties").as_object();
       return "Generated: \t" +
              std::string(boost::posix_time::to_simple_string(convertToLocalTime(
                  properties.at("generatedAt").as_string().c_str())));
-    } catch (const std::exception& e) {
-      return std::string("Error: ") + e.what();
-    }
   }
 
   void printAlerts() {
-    try {
       bj::array features = alert_data.as_object().at("features").as_array();
       for (auto& alert : features) {
         std::cout << "*** ";
@@ -132,16 +119,10 @@ class WeatherData {
         std::cout << "\n";
       }
       if (features.size()) std::cout << "\n";
-    } catch (std::exception& e) {
-      std::cout << "***" << e.what() << '\n';
-    }
   }
 };
 
 int main() {
-  // Hardcoded latitude and longitude values
-  std::string latitude = "40.85";
-  std::string longitude = "-77.84";
   std::string forecast_api =
       "https://api.weather.gov/gridpoints/CTP/69,60/forecast";
   std::string alerts_api = "https://api.weather.gov/alerts/active/zone/PAC027";
@@ -178,9 +159,16 @@ int main() {
       std::this_thread::sleep_for(std::chrono::minutes(90));
 
     } catch (const std::exception& e) {
-      std::cerr << "Error: " << e.what() << "\n";
+      if(static_cast<std::string>(e.what()).substr(0,12) == "out of range"){
+        std::cerr << "weather.gov API unavailable. ";
+      } else {
+        std::cerr << "Error: " << e.what() << "\n";
+      }
+      
+      const int retry_delay_minutes = 5;
+      std::cerr << "Retrying in " << retry_delay_minutes << " minutes. . .\n";
       std::this_thread::sleep_for(std::chrono::minutes(
-          5));  // Wait for 5 minutes before retrying on error
+          retry_delay_minutes));  // Wait for x minutes before retrying on error
     }
   }
 
