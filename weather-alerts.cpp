@@ -150,25 +150,27 @@ int main() {
       std::cout << weatherData.getUpdateTime() << "\n\n";
       weatherData.printAlerts();
 
-      // Display the forecast for the next 4 periods (can be adjusted)
-      for (int i = 0; i < 4; i++) {
-        std::cout << weatherData.getForecastForPeriod(i) << "\n\n";
+      // Display the forecast for the next x periods
+      const int NUM_FORECAST_PERIODS = 4;
+      for (int i = 0; i < NUM_FORECAST_PERIODS; i++) {
+        std::cout << weatherData.getForecastForPeriod(i) << "\n";
+        if (i != NUM_FORECAST_PERIODS - 1) std::cout << "\n";
       }
 
       std::cout << "---\n";
       std::this_thread::sleep_for(std::chrono::minutes(90));
 
     } catch (const std::exception& e) {
-      if(static_cast<std::string>(e.what()).substr(0,12) == "out of range"){
+      if (static_cast<std::string>(e.what()).substr(0,12) == "out of range"){
         std::cerr << "weather.gov API unavailable. ";
       } else {
         std::cerr << "Error: " << e.what() << "\n";
       }
       
-      const int retry_delay_minutes = 5;
-      std::cerr << "Retrying in " << retry_delay_minutes << " minutes. . .\n";
+      const int RETRY_DELAY_MINUTES = 5;
+      std::cerr << "Retrying in " << RETRY_DELAY_MINUTES << " minutes. . .\n";
       std::this_thread::sleep_for(std::chrono::minutes(
-          retry_delay_minutes));  // Wait for x minutes before retrying on error
+          RETRY_DELAY_MINUTES));  // Wait for x minutes before retrying on error
     }
   }
 
