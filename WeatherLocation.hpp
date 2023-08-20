@@ -14,17 +14,18 @@ namespace bj = boost::json;
 class WeatherLocation {
  public:
   WeatherLocation(std::string zipCode) : zipCode(zipCode) {
-    std::regex zipCodeTest("^\\d{5,5}");
+    std::regex zipCodeTest("^\\d{5,5}$");
     if (!std::regex_search(zipCode, zipCodeTest)) {
-      throw std::runtime_error("Invalid ZIP code!n");
+      throw std::runtime_error("Invalid ZIP code!\n");
     }
     std::string zipXML = httpClient.get(zipXMLUrl + zipCode);
-    latLong = setLatLong(zipXML);
+    latLong = getLatLong(zipXML);
+    if (latLong == ",") throw std::string("Invalid ZIP code!");
     std::string gridJSON = httpClient.get(grid_api_base + latLong);
     try {
       parseJson(gridJSON);
     } catch (std::exception& e) {
-      std::cout << "parseJSON Error: " << e.what() << 'n';
+      std::cerr << "parseJSON Error: " << e.what() << '\n';
       throw std::string("parseJSON exception");
     }
   }
@@ -37,7 +38,7 @@ class WeatherLocation {
   std::string getAlertsAPI() { return alerts_api; }
 
  private:
-  std::string setLatLong(std::string zipXML) {
+  std::string getLatLong(std::string zipXML) {
     std::string output;
     std::stringstream ss;
     try {
@@ -46,8 +47,8 @@ class WeatherLocation {
       read_xml(ss, pt);
       output = pt.get<std::string>("dwml.latLonList");
     } catch (std::exception& e) {
-      std::cout << "Error determining lat/long from zip code.n";
-      std::cout << "Error: " << e.what() << std::endl;
+      std::cerr << "Error determining lat/long from zip code.\n";
+      std::cerr << "Error: " << e.what() << std::endl;
     }
     return output;
   }
