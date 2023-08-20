@@ -8,6 +8,7 @@ class CommandLineProcessor {
   boost::program_options::options_description desc;
   static inline const int REFRESH_DELAY_MINUTES = 90;
   static inline const int RETRY_DELAY_MINUTES = 5;
+  static inline const int FORECAST_PERIODS = 4;
 
  public:
   CommandLineProcessor(int ac, char* av[]) : desc("Allowed options") {
@@ -15,6 +16,8 @@ class CommandLineProcessor {
         "zipcode,z",
         boost::program_options::value<std::string>()->default_value("00000"),
         "US Zip code for weather forecast")(
+        "periods,p", boost::program_options::value<int>()->default_value(FORECAST_PERIODS),
+        "# of forecast periods to display")(
         "delay,d",
         boost::program_options::value<int>()->default_value(
             REFRESH_DELAY_MINUTES),
@@ -48,8 +51,10 @@ class CommandLineProcessor {
   int getRetry() const { return argv_vm["retry"].as<int>(); }
 
   int getDefaultRefreshDelay() const { return REFRESH_DELAY_MINUTES; }
-  
+
   int getDefaultRetryDelay() const { return RETRY_DELAY_MINUTES; }
+
+  int getForecastPeriods() const { return argv_vm["periods"].as<int>(); }
 
   std::string getZipCode() const {
     return argv_vm["zipcode"].as<std::string>();
