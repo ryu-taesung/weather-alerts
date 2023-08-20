@@ -10,7 +10,7 @@
 #include "CommandLineProcessor.hpp"
 #include "WeatherLocation.hpp"
 
-int main(int ac, char* av[]) {
+int main(int ac, char* av[]) { try {
   CommandLineProcessor clp(ac, av);
   std::string zipCode = "00000";
 
@@ -20,10 +20,15 @@ int main(int ac, char* av[]) {
       return 1;
     }
     zipCode = clp.getZipCode();
-    std::regex zipCodeTest("^\\d{5,5}");
-    if (clp.getZipCode() == "00000" ||
-        !std::regex_search(zipCode, zipCodeTest)) {
-      std::cout << "Invalid zip code.\n";
+    std::regex zipCodeTest("^\\d{5,5}$");
+    if (clp.getZipCode() == "00000") {
+      do {
+        std::cout << "Enter ZIP code: ";
+        std::cin >> zipCode;
+      } while( zipCode == "00000" || !std::regex_search(zipCode, zipCodeTest));
+    }
+    if (!std::regex_search(zipCode, zipCodeTest)) {
+      std::cout << "Invalid ZIP code.\n";
       std::cout << clp.helpMessage() << "\n";
       return 1;
     }
@@ -72,7 +77,7 @@ int main(int ac, char* av[]) {
       weatherData.printAlerts();
 
       // Display the forecast for the next x periods
-      const int NUM_FORECAST_PERIODS = 4;
+      const int NUM_FORECAST_PERIODS = clp.getForecastPeriods();
       for (int i = 0; i < NUM_FORECAST_PERIODS; i++) {
         std::cout << weatherData.getForecastForPeriod(i) << "\n";
         if (i != NUM_FORECAST_PERIODS - 1) std::cout << "\n";
@@ -94,6 +99,15 @@ int main(int ac, char* av[]) {
           RETRY_DELAY_MINUTES));  // Wait for x minutes before retrying on error
     }
   }
+} catch(std::exception& e) {
+  std::cerr << "Unhandled exception: " << e.what() << '\n';
+  return 1;
+} catch(std::string& e) {
+  std::cerr << "Unhandled exception: " << e << '\n';
+  return 1;
+} catch (...) {
+  std::cerr << "Unhandled exception!\n";
+}
 
   return 0;
 }
