@@ -35,9 +35,9 @@ std::string getValidZipCode(CommandLineProcessor& clp) {
     } while (zipCode == "00000" || !std::regex_search(zipCode, zipCodeTest));
   }
 
-  // if (!std::regex_search(zipCode, zipCodeTest)) {
-  //   throw std::invalid_argument("Invalid ZIP code.");
-  // }
+  if (!std::regex_search(zipCode, zipCodeTest)) {
+    throw std::invalid_argument("Invalid ZIP code.");
+  }
 
   return zipCode;
 }
