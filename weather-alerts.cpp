@@ -10,6 +10,20 @@
 #include "CommandLineProcessor.hpp"
 #include "WeatherLocation.hpp"
 
+std::string getCurrentTimeStamp() {
+  // Get the current time point
+  auto now = std::chrono::system_clock::now();
+  // Convert to a time_t
+  std::time_t current_time = std::chrono::system_clock::to_time_t(now);
+  // Convert to local time
+  std::tm* local_tm = std::localtime(&current_time);
+  char timeBuffer[32];
+  std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%b-%d %H:%M:%S",
+                local_tm);
+
+  return static_cast<std::string>(timeBuffer);
+}
+
 int main(int ac, char* av[]) { try {
   CommandLineProcessor clp(ac, av);
   std::string zipCode = "00000";
@@ -56,17 +70,8 @@ int main(int ac, char* av[]) { try {
   HttpClient httpClient;
 
   while (true) {
-    try {
-      // Get the current time point
-      auto now = std::chrono::system_clock::now();
-      // Convert to a time_t
-      std::time_t current_time = std::chrono::system_clock::to_time_t(now);
-      // Convert to local time
-      std::tm* local_tm = std::localtime(&current_time);
-      char timeBuffer[100];
-      std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%b-%d %H:%M:%S",
-                    local_tm);
-      std::cout << "Run: \t\t" << timeBuffer << "\n";
+    try {      
+      std::cout << "Run: \t\t" << getCurrentTimeStamp() << "\n";
 
       std::string rawData = httpClient.get(forecast_api);
       std::string rawAlerts = httpClient.get(alerts_api);
