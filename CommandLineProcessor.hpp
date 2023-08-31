@@ -16,12 +16,15 @@ class CommandLineProcessor {
         "zipcode,z",
         boost::program_options::value<std::string>()->default_value("00000"),
         "US Zip code for weather forecast")(
-        "periods,p", boost::program_options::value<int>()->default_value(FORECAST_PERIODS),
+        "periods,p",
+        boost::program_options::value<int>()->default_value(FORECAST_PERIODS),
         "# of forecast periods to display")(
-        "delay,d",
-        boost::program_options::value<int>()->default_value(
-            REFRESH_DELAY_MINUTES),
-        "Refresh delay in minutes")(
+        "wordwrap,w",
+        boost::program_options::value<bool>()->default_value(true),
+        "Word wrap output")("delay,d",
+                            boost::program_options::value<int>()->default_value(
+                                REFRESH_DELAY_MINUTES),
+                            "Refresh delay in minutes")(
         "retry,r",
         boost::program_options::value<int>()->default_value(
             RETRY_DELAY_MINUTES),
@@ -49,6 +52,8 @@ class CommandLineProcessor {
   int getDelay() const { return argv_vm["delay"].as<int>(); }
 
   int getRetry() const { return argv_vm["retry"].as<int>(); }
+
+  int getWordWrap() const { return argv_vm["wordwrap"].as<bool>(); }
 
   int getDefaultRefreshDelay() const { return REFRESH_DELAY_MINUTES; }
 
