@@ -89,7 +89,7 @@ int main(int ac, char* av[]) {
         std::string rawData = httpClient.get(forecast_api);
         std::string rawAlerts = httpClient.get(alerts_api);
 
-        WeatherData weatherData(rawData, rawAlerts);
+        WeatherData weatherData(rawData, rawAlerts, clp->getWordWrap());
         std::cout << weatherData.getGeneratedTime() << "\n";
         std::cout << weatherData.getUpdateTime() << "\n\n";
         weatherData.printAlerts();
@@ -97,7 +97,7 @@ int main(int ac, char* av[]) {
         // Display the forecast for the next x periods
         const int NUM_FORECAST_PERIODS = clp->getForecastPeriods();
         for (int i = 0; i < NUM_FORECAST_PERIODS; i++) {
-          std::cout << weatherData.getForecastForPeriod(i) << "\n";
+          std::cout << weatherData.getForecastForPeriod(i);
           if (i != NUM_FORECAST_PERIODS - 1) std::cout << "\n";
         }
 
