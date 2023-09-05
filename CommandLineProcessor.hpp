@@ -16,14 +16,11 @@ class CommandLineProcessor {
         "zipcode,z",
         boost::program_options::value<std::string>()->default_value("00000"),
         "US Zip code for weather forecast")(
-        "periods,p",
-        boost::program_options::value<int>()->default_value(FORECAST_PERIODS),
+        "periods,p", boost::program_options::value<int>(),
         "# of forecast periods to display")(
         "wordwrap,w",
         boost::program_options::value<bool>()->default_value(true),
-        "Word wrap output")("delay,d",
-                            boost::program_options::value<int>()->default_value(
-                                REFRESH_DELAY_MINUTES),
+        "Word wrap output")("delay,d", boost::program_options::value<int>(),
                             "Refresh delay in minutes")(
         "retry,r",
         boost::program_options::value<int>()->default_value(
@@ -49,7 +46,19 @@ class CommandLineProcessor {
 
   bool hasHelp() const { return argv_vm.count("help"); }
 
-  int getDelay() const { return argv_vm["delay"].as<int>(); }
+  bool hasDelay() const { return argv_vm.count("delay"); }
+
+  bool hasRetry() const { return argv_vm.count("retry"); }
+
+  bool hasForecastPeriods() const { return argv_vm.count("periods"); }
+
+  int getDelay() const {
+    int delay{REFRESH_DELAY_MINUTES};
+    if (argv_vm.count("delay")) {
+      delay = argv_vm["delay"].as<int>();
+    }
+    return delay;
+  }
 
   int getRetry() const { return argv_vm["retry"].as<int>(); }
 
@@ -59,7 +68,15 @@ class CommandLineProcessor {
 
   int getDefaultRetryDelay() const { return RETRY_DELAY_MINUTES; }
 
-  int getForecastPeriods() const { return argv_vm["periods"].as<int>(); }
+  int getForecastPeriods() const {
+    int periods = FORECAST_PERIODS;
+    if (argv_vm.count("periods")) {
+      periods = argv_vm["periods"].as<int>();
+    }
+    return periods;
+  }
+
+  int getDefaultForecastPeriods() const { return FORECAST_PERIODS; }
 
   std::string getZipCode() const {
     return argv_vm["zipcode"].as<std::string>();

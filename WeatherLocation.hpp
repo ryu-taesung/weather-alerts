@@ -37,6 +37,14 @@ class WeatherLocation {
 
   std::string getAlertsAPI() { return alerts_api; }
 
+  void setCity(std::string theCity) { city = theCity; }
+
+  void setState(std::string theState) { state = theState; }
+
+  void setForecastAPI(std::string theForecastAPI) { forecast_api = theForecastAPI; }
+
+  void setAlertsAPI(std::string theAlertsAPI) { alerts_api = theAlertsAPI; }
+
  private:
   std::string getLatLong(std::string zipXML) {
     std::string output;
