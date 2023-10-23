@@ -69,103 +69,153 @@ void displayConfiguration(CommandLineProcessor& clp,
   if (outstring.length()) std::cout << outstring << "\n";
 }
 
+void initializeVariables(std::string& zipCode, int& delay, int& retry,
+                         int& forecastPeriods, std::string& forecast_api,
+                         std::string& alerts_api, std::string& city,
+                         std::string& state, WeatherSettings& settings) {
+  zipCode = "00000";
+  delay = 0;
+  retry = 0;
+  forecastPeriods = 0;
+  forecast_api = "";
+  alerts_api = "";
+  city = "";
+  state = "";
+  settings.loadSettings();
+}
+
+void processCommandLineArgs(int ac, char* av[],
+                            std::optional<CommandLineProcessor>& clp,
+                            WeatherSettings& settings, std::string& zipCode,
+                            int& delay, int& retry, int& forecastPeriods,
+                            std::string& forecast_api, std::string& alerts_api,
+                            std::string& city, std::string& state) {
+  clp.emplace(ac, av);
+  delay = clp->getDefaultRefreshDelay();
+  retry = clp->getDefaultRetryDelay();
+  forecastPeriods = clp->getDefaultForecastPeriods();
+
+  if (clp->hasHelp()) {
+    std::cout << clp->helpMessage() << '\n';
+    exit(1);
+  }
+
+  zipCode = getValidZipCode(*clp, settings);
+  if (fs::exists("settings.json")) {
+    delay = settings.getDelay();
+    retry = settings.getRetry();
+    forecastPeriods = settings.getPeriods();
+    //if the zipCode is the same as settings.json then the data is correct.
+    //if forecast_api is left blank, new location will be retrieved.
+    if (zipCode == settings.getZipCode()) {
+      forecast_api = settings.getForecastAPI();
+      alerts_api = settings.getAlertsAPI();
+      city = settings.getCity();
+      state = settings.getState();
+    }
+  }
+
+  displayConfiguration(*clp, settings);
+  if (clp->hasDelay()) delay = clp->getDelay();
+  if (clp->hasRetry()) retry = clp->getRetry();
+  if (clp->hasForecastPeriods()) forecastPeriods = clp->getForecastPeriods();
+
+  settings.setZipCode(zipCode);
+  settings.setDelay(delay);
+  settings.setRetry(retry);
+  settings.setForecastPeriods(forecastPeriods);
+}
+
+void setupWeatherLocation(const std::string& zipCode, std::string& forecast_api,
+                          std::string& alerts_api, std::string& city,
+                          std::string& state, WeatherSettings& settings) {
+  if (forecast_api.empty()) {
+    WeatherLocation myLocation(zipCode);
+    forecast_api = myLocation.getForecastAPI();
+    alerts_api = myLocation.getAlertsAPI();
+    city = myLocation.getCity();
+    state = myLocation.getState();
+    settings.setForecastAPI(forecast_api);
+    settings.setAlertsAPI(alerts_api);
+    settings.setCity(city);
+    settings.setState(state);
+  }
+  settings.saveSettings();
+}
+
+void displayWeatherLoop(WeatherSettings& settings,
+                        const std::string& forecast_api,
+                        const std::string& alerts_api, const std::string& city,
+                        const std::string& state, bool wordWrap) {
+  HttpClient httpClient;
+  while (true) {
+    try {
+      std::cout << "Run: \t\t" << getCurrentTimeStamp() << "\n";
+
+      std::string rawData = httpClient.get(forecast_api);
+      std::string rawAlerts = httpClient.get(alerts_api);
+
+      WeatherData weatherData(rawData, rawAlerts, wordWrap);
+      std::cout << weatherData.getGeneratedTime() << "\n";
+      std::cout << weatherData.getUpdateTime() << "\n\n";
+      weatherData.printAlerts();
+
+      // Display the forecast for the next x periods
+      const int NUM_FORECAST_PERIODS = settings.getPeriods();
+      for (int i = 0; i < NUM_FORECAST_PERIODS; i++) {
+        std::cout << weatherData.getForecastForPeriod(i);
+        if (i != NUM_FORECAST_PERIODS - 1) std::cout << "\n";
+      }
+
+      std::cout << "---\n";
+      std::this_thread::sleep_for(std::chrono::minutes(settings.getDelay()));
+
+    } catch (const std::exception& e) {
+      if (static_cast<std::string>(e.what()).substr(0, 12) == "out of range") {
+        std::cerr << "weather.gov API unavailable. ";
+      } else {
+        std::cerr << "Error: " << e.what() << "\n";
+      }
+
+      const int RETRY_DELAY_MINUTES = settings.getRetry();
+      std::cerr << "Retrying in " << RETRY_DELAY_MINUTES << " minutes. . .\n";
+      std::this_thread::sleep_for(std::chrono::minutes(
+          RETRY_DELAY_MINUTES));  // Wait for x minutes before retrying on
+                                  // error
+    }
+  }
+}
+
 int main(int ac, char* av[]) {
   try {
-    std::string zipCode = "00000";
-    int delay{0};
-    int retry{0};
-    int forecastPeriods{0};
+    std::string zipCode, forecast_api, alerts_api, city, state;
+    int delay, retry, forecastPeriods;
     std::optional<CommandLineProcessor> clp;
     WeatherSettings settings;
-    settings.loadSettings();
-    try {
-      clp.emplace(ac, av);
-      delay = clp->getDefaultRefreshDelay();
-      retry = clp->getDefaultRetryDelay();
-      forecastPeriods = clp->getDefaultForecastPeriods();
 
-      if (clp->hasHelp()) {
-        std::cout << clp->helpMessage() << '\n';
-        return 1;
-      }
+    initializeVariables(zipCode, delay, retry, forecastPeriods, forecast_api,
+                        alerts_api, city, state, settings);
 
-      zipCode = getValidZipCode(*clp, settings);
-      if (fs::exists("settings.json")) {
-        delay = settings.getDelay();
-        retry = settings.getRetry();
-        forecastPeriods = settings.getPeriods();
-      }
-      displayConfiguration(*clp, settings);
-      if (clp->hasDelay()) delay = clp->getDelay();
-      if (clp->hasRetry()) retry = clp->getRetry();
-      if (clp->hasForecastPeriods())
-        forecastPeriods = clp->getForecastPeriods();
+    processCommandLineArgs(ac, av, clp, settings, zipCode, delay, retry,
+                           forecastPeriods, forecast_api, alerts_api, city,
+                           state);
 
-      settings.setZipCode(zipCode);
-      settings.setDelay(delay);
-      settings.setRetry(retry);
-      settings.setForecastPeriods(forecastPeriods);
+    setupWeatherLocation(zipCode, forecast_api, alerts_api, city, state,
+                         settings);
 
-    } catch (std::exception& e) {
-      std::cout << "Error: " << e.what() << '\n';
-      return 1;
-    }
+    std::cout << "Weather for: \t" << city << ", " << state << '\n';
 
-    WeatherLocation myLocation(zipCode);
-    settings.saveSettings();
-    std::string forecast_api = myLocation.getForecastAPI();
-    std::string alerts_api = myLocation.getAlertsAPI();
-    std::cout << "Weather for: \t" << myLocation.getCity() << ", "
-              << myLocation.getState() << '\n';
+    displayWeatherLoop(settings, forecast_api, alerts_api, city, state,
+                       clp->getWordWrap());
 
-    HttpClient httpClient;
-
-    while (true) {
-      try {
-        std::cout << "Run: \t\t" << getCurrentTimeStamp() << "\n";
-
-        std::string rawData = httpClient.get(forecast_api);
-        std::string rawAlerts = httpClient.get(alerts_api);
-
-        WeatherData weatherData(rawData, rawAlerts, clp->getWordWrap());
-        std::cout << weatherData.getGeneratedTime() << "\n";
-        std::cout << weatherData.getUpdateTime() << "\n\n";
-        weatherData.printAlerts();
-
-        // Display the forecast for the next x periods
-        const int NUM_FORECAST_PERIODS = settings.getPeriods();
-        for (int i = 0; i < NUM_FORECAST_PERIODS; i++) {
-          std::cout << weatherData.getForecastForPeriod(i);
-          if (i != NUM_FORECAST_PERIODS - 1) std::cout << "\n";
-        }
-
-        std::cout << "---\n";
-        std::this_thread::sleep_for(std::chrono::minutes(settings.getDelay()));
-
-      } catch (const std::exception& e) {
-        if (static_cast<std::string>(e.what()).substr(0, 12) ==
-            "out of range") {
-          std::cerr << "weather.gov API unavailable. ";
-        } else {
-          std::cerr << "Error: " << e.what() << "\n";
-        }
-
-        const int RETRY_DELAY_MINUTES = settings.getRetry();
-        std::cerr << "Retrying in " << RETRY_DELAY_MINUTES << " minutes. . .\n";
-        std::this_thread::sleep_for(std::chrono::minutes(
-            RETRY_DELAY_MINUTES));  // Wait for x minutes before retrying on
-                                    // error
-      }
-    }
-  } catch (std::exception& e) {
+  } catch (const std::exception& e) {
     std::cerr << "Unhandled exception: " << e.what() << '\n';
     return 1;
-  } catch (std::string& e) {
+  } catch (const std::string& e) {
     std::cerr << "Unhandled exception: " << e << '\n';
     return 1;
   } catch (...) {
     std::cerr << "Unhandled exception!\n";
   }
-
   return 0;
 }
