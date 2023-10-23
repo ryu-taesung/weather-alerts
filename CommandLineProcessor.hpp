@@ -62,7 +62,7 @@ class CommandLineProcessor {
 
   int getRetry() const { return argv_vm["retry"].as<int>(); }
 
-  int getWordWrap() const { return argv_vm["wordwrap"].as<bool>(); }
+  bool getWordWrap() const { return argv_vm["wordwrap"].as<bool>(); }
 
   int getDefaultRefreshDelay() const { return REFRESH_DELAY_MINUTES; }
 
