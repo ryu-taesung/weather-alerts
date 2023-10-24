@@ -31,7 +31,7 @@ std::string getValidZipCode(CommandLineProcessor& clp,
   std::string zipCode = clp.getZipCode();
   std::regex zipCodeTest("^\\d{5,5}$");
 
-  if (zipCode == "00000" && fs::exists("settings.json")) {
+  if (zipCode == "00000" && settings.settingsFileExists()) {
     zipCode = settings.getZipCode();
   } else if (zipCode == "00000") {
     do {
@@ -101,12 +101,12 @@ void processCommandLineArgs(int ac, char* av[],
   }
 
   zipCode = getValidZipCode(*clp, settings);
-  if (fs::exists("settings.json")) {
+  if (settings.settingsFileExists()) {
     delay = settings.getDelay();
     retry = settings.getRetry();
     forecastPeriods = settings.getPeriods();
-    //if the zipCode is the same as settings.json then the data is correct.
-    //if forecast_api is left blank, new location will be retrieved.
+    // if the zipCode is the same as settings.json then the data is correct.
+    // if forecast_api is left blank, new location will be retrieved.
     if (zipCode == settings.getZipCode()) {
       forecast_api = settings.getForecastAPI();
       alerts_api = settings.getAlertsAPI();
