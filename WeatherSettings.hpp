@@ -5,15 +5,19 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 namespace fs = std::filesystem;
 namespace bj = boost::json;
 
 class WeatherSettings {
  public:
-  WeatherSettings(std::string zipCode, int delay, int retry, int periods)
-      : zipCode(zipCode), delay(delay), retry(retry), periods(periods) {}
-  WeatherSettings() {}
+  // WeatherSettings(std::string zipCode, int delay, int retry, int periods)
+  //     : zipCode(zipCode), delay(delay), retry(retry), periods(periods) {}
+  WeatherSettings() {
+    const fs::path exePath = getExecuatablePath();
+    settings_file = exePath.parent_path() / "settings.json";
+  }
   std::string getZipCode() { return zipCode; }
   int getDelay() { return delay; }
   int getRetry() { return retry; }
@@ -31,9 +35,6 @@ class WeatherSettings {
   void setCity(std::string input) { city = input; }
   void setState(std::string input) { state = input; }
   void saveSettings() {
-    const fs::path settings{"settings.json"};
-    std::ofstream outfile;
-    outfile.open(settings.c_str());
     bj::object obj;
     obj["zipCode"] = zipCode;
     obj["delay"] = delay;
@@ -44,17 +45,25 @@ class WeatherSettings {
     obj["city"] = city;
     obj["state"] = state;
     std::string json = bj::serialize(obj);
-    outfile << json;
-    outfile.close();
+    std::ofstream outfile(settings_file, std::ios::out);
+    if (outfile.is_open()) {
+      outfile << json;
+      // outfile.close(); //This can be omitted since the destructor will handle
+      // it.
+    } else {
+      std::cerr << "Error opening " << settings_file << " for writing."
+                << std::endl;
+    }
   }
   void loadSettings() {
-    const fs::path settings{"settings.json"};
-    if (fs::exists(settings)) {
+    if (settingsFileExists()) {
       std::ifstream ifile;
-      ifile.open(settings.c_str());
-      std::string json;
-      ifile >> json;
+      ifile.open(settings_file);
+      std::stringstream buffer;
+      buffer << ifile.rdbuf();
+      std::string json = buffer.str();
       ifile.close();
+
       bj::value jv = bj::parse(json);
       bj::object obj = jv.as_object();
       zipCode = obj.at("zipCode").as_string();
@@ -69,8 +78,27 @@ class WeatherSettings {
       // std::cout << "settings.json does not exist!n";
     }
   }
+  fs::path getExecuatablePath() {
+#ifdef __linux__
+    return fs::read_symlink("/proc/self/exe");
+#elif _WIN32
+    wchar_t buffer[MAX_PATH];
+    GetModuleFileNameW(NULL, buffer, MAX_PATH);
+    return fs::path(buffer);
+#else
+    // Fallback to current_path if the platform isn't recognized.
+    return fs::current_path();
+#endif
+  }
+  bool settingsFileExists() {
+    if (fs::exists(settings_file)) {
+      return true;
+    }
+    return false;
+  }
 
  private:
+  fs::path settings_file;
   std::string zipCode{};
   int delay{};
   int retry{};
@@ -79,5 +107,4 @@ class WeatherSettings {
   std::string state{};
   std::string forecastAPI{};
   std::string alertsAPI{};
-  
 };
