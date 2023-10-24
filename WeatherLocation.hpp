@@ -18,9 +18,12 @@ class WeatherLocation {
     if (!std::regex_search(zipCode, zipCodeTest)) {
       throw std::runtime_error("Invalid ZIP code!\n");
     }
+    std::cout << "Getting Lat/Long from ZIP code. . . ";
     std::string zipXML = httpClient.get(zipXMLUrl + zipCode);
     latLong = getLatLong(zipXML);
     if (latLong == ",") throw std::string("Invalid ZIP code!");
+    std::cout << latLong << '\n';
+    std::cout << "Getting grid data from Weather.gov. . .\n";
     std::string gridJSON = httpClient.get(grid_api_base + latLong);
     try {
       parseJson(gridJSON);
@@ -41,7 +44,9 @@ class WeatherLocation {
 
   void setState(std::string theState) { state = theState; }
 
-  void setForecastAPI(std::string theForecastAPI) { forecast_api = theForecastAPI; }
+  void setForecastAPI(std::string theForecastAPI) {
+    forecast_api = theForecastAPI;
+  }
 
   void setAlertsAPI(std::string theAlertsAPI) { alerts_api = theAlertsAPI; }
 
