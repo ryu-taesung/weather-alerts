@@ -33,7 +33,8 @@ std::string getValidZipCode(CommandLineProcessor& clp,
 
   if (zipCode == "00000" && settings.settingsFileExists()) {
     zipCode = settings.getZipCode();
-  } else if (zipCode == "00000") {
+  }
+  if (zipCode == "00000" || !std::regex_search(zipCode, zipCodeTest)) {
     do {
       std::cout << "Enter ZIP code: ";
       std::cin >> zipCode;
