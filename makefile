@@ -1,6 +1,10 @@
 # Variables
 CXX = g++
-CXXFLAGS = -O3 -Wall -std=c++17
+CXXFLAGS = -Os -Wall -std=c++17
+# Adding conditional flags for Raspberry Pi/armv6
+ifeq ($(shell uname -m),armv6l)  # or "ifneq (,$(findstring arm, $(shell uname -m)))" for more general check
+CXXFLAGS += -Wl,--no-keep-memory
+endif
 INCLUDES = -I../boost_1_83_0
 LIBS = -lcurl -lpthread -L../boost_1_83_0/stage/lib -lboost_program_options
 TARGET = weather-alerts
