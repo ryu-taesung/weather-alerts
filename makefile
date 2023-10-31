@@ -1,6 +1,6 @@
 # Variables
 CXX = g++
-CXXFLAGS = -Os -Wall -std=c++17
+CXXFLAGS = -Os -Wall -Wextra -std=c++17
 # Adding conditional flags for Raspberry Pi/armv6
 ifeq ($(shell uname -m),armv6l)  # or "ifneq (,$(findstring arm, $(shell uname -m)))" for more general check
 CXXFLAGS += -Wl,--no-keep-memory
