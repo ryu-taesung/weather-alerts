@@ -146,8 +146,7 @@ void setupWeatherLocation(const std::string& zipCode, std::string& forecast_api,
 
 void displayWeatherLoop(WeatherSettings& settings,
                         const std::string& forecast_api,
-                        const std::string& alerts_api, const std::string& city,
-                        const std::string& state, bool wordWrap) {
+                        const std::string& alerts_api, bool wordWrap) {
   HttpClient httpClient;
   while (true) {
     try {
@@ -206,8 +205,7 @@ int main(int ac, char* av[]) {
 
     std::cout << "Weather for: \t" << city << ", " << state << '\n';
 
-    displayWeatherLoop(settings, forecast_api, alerts_api, city, state,
-                       clp->getWordWrap());
+    displayWeatherLoop(settings, forecast_api, alerts_api, clp->getWordWrap());
 
   } catch (const std::exception& e) {
     std::cerr << "Unhandled exception: " << e.what() << '\n';
