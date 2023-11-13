@@ -188,6 +188,7 @@ void displayWeatherLoop(WeatherSettings& settings,
 
 int main(int ac, char* av[]) {
   try {
+    std::cout << "Version:" << '\t' << GIT_VERSION << '\n';
     std::string zipCode, forecast_api, alerts_api, city, state;
     int delay, retry, forecastPeriods;
     std::optional<CommandLineProcessor> clp;

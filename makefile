@@ -1,6 +1,8 @@
 # Variables
 CXX = g++
 CXXFLAGS = -Os -Wall -Wextra -std=c++17
+GIT_VERSION := $(shell git describe --always --tags)
+
 # Adding conditional flags for Raspberry Pi/armv6
 ifeq ($(shell uname -m),armv6l)  # or "ifneq (,$(findstring arm, $(shell uname -m)))" for more general check
 CXXFLAGS += -Wl,--no-keep-memory
@@ -14,7 +16,7 @@ SOURCES = weather-alerts.cpp
 all: $(TARGET)
 
 $(TARGET): $(SOURCES)
-	$(CXX) $(CXXFLAGS) -o $@ $(INCLUDES) $^ $(LIBS)
+	$(CXX) $(CXXFLAGS) -DGIT_VERSION=\"$(GIT_VERSION)\" -o $@ $(INCLUDES) $^ $(LIBS)
 
 clean:
 	rm -f $(TARGET)
