@@ -8,7 +8,7 @@ class CommandLineProcessor {
   boost::program_options::options_description desc;
   static inline const int REFRESH_DELAY_MINUTES = 90;
   static inline const int RETRY_DELAY_MINUTES = 5;
-  static inline const int FORECAST_PERIODS = 4;
+  static inline const int FORECAST_PERIODS = 7;
 
  public:
   CommandLineProcessor(int ac, char* av[]) : desc("Allowed options") {
