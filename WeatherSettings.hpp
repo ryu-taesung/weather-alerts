@@ -47,7 +47,8 @@ class WeatherSettings {
     std::string json = bj::serialize(obj);
     std::ofstream outfile(settings_file, std::ios::out);
     if (outfile.is_open()) {
-      outfile << json;
+      //outfile << json;
+      pretty_print(outfile, obj);
       // outfile.close(); //This can be omitted since the destructor will handle
       // it.
     } else {
@@ -107,4 +108,85 @@ class WeatherSettings {
   std::string state{};
   std::string forecastAPI{};
   std::string alertsAPI{};
+  void
+pretty_print( std::ostream& os, bj::value const& jv, std::string* indent = nullptr )
+{
+    std::string indent_;
+    if(! indent)
+        indent = &indent_;
+    switch(jv.kind())
+    {
+    case bj::kind::object:
+    {
+        os << "{\n";
+        indent->append(4, ' ');
+        auto const& obj = jv.get_object();
+        if(! obj.empty())
+        {
+            auto it = obj.begin();
+            for(;;)
+            {
+                os << *indent << bj::serialize(it->key()) << " : ";
+                pretty_print(os, it->value(), indent);
+                if(++it == obj.end())
+                    break;
+                os << ",\n";
+            }
+        }
+        os << "\n";
+        indent->resize(indent->size() - 4);
+        os << *indent << "}";
+        break;
+    }
+
+    case bj::kind::array:
+    {
+        os << "[\n";
+        indent->append(4, ' ');
+        auto const& arr = jv.get_array();
+        if(! arr.empty())
+        {
+            auto it = arr.begin();
+            for(;;)
+            {
+                os << *indent;
+                pretty_print( os, *it, indent);
+                if(++it == arr.end())
+                    break;
+                os << ",\n";
+            }
+        }
+        os << "\n";
+        indent->resize(indent->size() - 4);
+        os << *indent << "]";
+        break;
+    }
+
+    case bj::kind::string:
+    {
+        os << bj::serialize(jv.get_string());
+        break;
+    }
+
+    case bj::kind::uint64:
+    case bj::kind::int64:
+    case bj::kind::double_:
+        os << jv;
+        break;
+
+    case bj::kind::bool_:
+        if(jv.get_bool())
+            os << "true";
+        else
+            os << "false";
+        break;
+
+    case bj::kind::null:
+        os << "null";
+        break;
+    }
+
+    if(indent->empty())
+        os << "\n";
+}
 };
