@@ -20,7 +20,7 @@ If `libcurl-dev` is not already installed on your system, you can install it usi
 ### Step 2: Install Boost Libraries
 First, download the Boost library from [Boost Official Website](https://www.boost.org/).
 
-Then, navigate to the Boost directory and run the following commands to install the required Boost components:
+Then, navigate to the Boost directory and run the following commands to build the required Boost components:
 ```
 ./bootstrap
 ./b2 --with-program_options runtime-link=static link=static address-model=64
@@ -36,7 +36,16 @@ Or run the Linux makefile:
 `make`
 
 ## Usage
-After successful installation, you can run the `weather-alerts` executable to receive weather alerts.
+After successful build, you can run the `weather-alerts` executable to receive current weather forecasts, and weather alerts.
+```
+Allowed options:
+  -h [ --help ]                 produce help message
+  -z [ --zipcode ] arg (=00000) US Zip code for weather forecast
+  -p [ --periods ] arg          # of forecast periods to display
+  -w [ --wordwrap ] arg (=1)    Word wrap output
+  -d [ --delay ] arg            Refresh delay in minutes
+  -r [ --retry ] arg (=5)       Error retry delay in minutes
+```
 
 ## Contributing
 Contributions to the Weather Alerts project are welcome. Please feel free to fork the repository, make changes, and submit a pull request.
