@@ -173,6 +173,8 @@ void displayWeatherLoop(WeatherSettings& settings,
     } catch (const std::exception& e) {
       if (static_cast<std::string>(e.what()).substr(0, 12) == "out of range") {
         std::cerr << "weather.gov API unavailable. ";
+      } else if (static_cast<std::string>(e.what()).substr(0,12) == "syntax error"){
+        std::cerr << "Bad JSON data. weather.gov API down. This is unusual. ";
       } else {
         std::cerr << "Error: " << e.what() << "\n";
       }
