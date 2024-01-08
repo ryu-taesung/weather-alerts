@@ -2,4 +2,4 @@ weather-alerts.exe: weather-alerts.obj
   link build\weather-alerts.obj kernel32.lib advapi32.lib Ws2_32.lib Crypt32.lib Wldap32.lib Normaliz.lib /LIBPATH:..\boost_1_82_0\stage\lib ..\vcpkg\installed\x64-windows-static-release\lib\libcurl.lib ..\vcpkg\installed\x64-windows-static-release\lib\zlib.lib /out:build\weather-alerts.exe
 
 weather-alerts.obj: weather-alerts.cpp
-  cl /std:c++17 /W4 /O2 /MT /EHsc /I..\boost_1_82_0 /I..\vcpkg\installed\x64-windows-static-release\include\ /DCURL_STATICLIB /DBOOST_JSON_NO_LIB /DBOOST_CONTAINER_NO_LIB -c weather-alerts.cpp -D_WIN32_WINNT=0x0A00 /Fo:build\weather-alerts.obj
+  cl /std:c++17 /W4 /O2 /MT /EHsc /I..\boost_1_82_0 /I..\vcpkg\installed\x64-windows-static-release\include\ /DGIT_VERSION=\"$(GIT_VERSION)\" /DCURL_STATICLIB /DBOOST_JSON_NO_LIB /DBOOST_CONTAINER_NO_LIB -c weather-alerts.cpp -D_WIN32_WINNT=0x0A00 /Fo:build\weather-alerts.obj
