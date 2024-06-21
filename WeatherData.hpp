@@ -74,7 +74,7 @@ class WeatherData {
         parsed_data.as_object().at("properties").as_object();
     return "Updated: \t" +
            std::string(boost::posix_time::to_simple_string(convertToLocalTime(
-               properties.at("updated").as_string().c_str())));
+               properties.at("updateTime").as_string().c_str())));
   }
 
   std::string getGeneratedTime() {
