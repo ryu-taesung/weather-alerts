@@ -7,8 +7,8 @@ GIT_VERSION := $(shell git describe --always --tags)
 ifeq ($(shell uname -m),armv6l)  # or "ifneq (,$(findstring arm, $(shell uname -m)))" for more general check
 CXXFLAGS += -Wl,--no-keep-memory
 endif
-INCLUDES = -I../boost_1_83_0
-LIBS = -lcurl -lpthread -L../boost_1_83_0/stage/lib -lboost_program_options
+
+LIBS = -lcurl -lpthread -lboost_program_options
 TARGET = weather-alerts
 SOURCES = weather-alerts.cpp
 
