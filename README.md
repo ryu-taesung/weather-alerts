@@ -35,7 +35,7 @@ That’s it — the `weather-alerts` binary will be produced in the project dire
 
 Or build with CMake:
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release 
 cmake --build build
 ./build/weather-alerts --help
 ```
