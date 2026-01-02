@@ -1,61 +1,136 @@
 # Weather Alerts
 
-## Overview
-Weather Alerts is a C++ application that uses libcurl and Boost libraries to provide current weather forecast (default 7 periods), and weather alert notifications. This application is easy to integrate and use in various C++ projects.
-
-## Prerequisites
-Before building Weather Alerts, ensure you have the following dependencies available:
-- `libcurl-dev`
-- `Boost program_options`
-- `Boost json`
-
-## Installation Instructions
-
-### Step 1: Install libcurl
-If `libcurl-dev` is not already installed on your system, you can install it using the following command:
-`sudo apt install libcurl-dev`
-
-(Vcpkg installation instructions will be provided soon.)
-
-### Step 2: Install Boost Libraries
-First, download the Boost library from [Boost Official Website](https://www.boost.org/).
-
-Then, navigate to the Boost directory and run the following commands to build the required Boost components:
-```
-./bootstrap
-./b2 --with-program_options runtime-link=static link=static address-model=64
-```
-
-### Step 3: Compile the Weather Alerts Application
-Use the following command to compile the `weather-alerts` application:
-
-```
-g++ -Wall -std=c++17 -o weather-alerts -I../boost_1_83_0 weather-alerts.cpp -lcurl -lpthread -L../boost_1_83_0/stage/lib -lboost_program_options
-```
-Or run the Linux makefile:
-`make`
-
-## Usage
-After successful build, you can run the `weather-alerts` executable to receive current weather forecasts, and weather alerts.
-```
-Allowed options:
-  -h [ --help ]                 produce help message
-  -z [ --zipcode ] arg (=00000) US Zip code for weather forecast
-  -p [ --periods ] arg          # of forecast periods to display
-  -w [ --wordwrap ] arg (=1)    Word wrap output
-  -d [ --delay ] arg            Refresh delay in minutes
-  -r [ --retry ] arg (=5)       Error retry delay in minutes
-```
-
-## Contributing
-Contributions to the Weather Alerts project are welcome. Please feel free to fork the repository, make changes, and submit a pull request.
-
-## License
-[Specify the license here, if applicable]
-
-## Contact
-For any queries or contributions, please contact [Your Contact Information].
+**Weather Alerts** is a lightweight C++ application that fetches and displays current weather forecasts and alerts using libcurl and Boost.
+It’s designed to be simple to build, portable, and easy to integrate into other projects.
 
 ---
 
-Weather Alerts - An efficient way to stay updated with the weather.
+## Quick Start (Recommended)
+
+Most users can install the required dependencies via their system package manager and build immediately.
+
+### Fedora / RHEL / Rocky / Alma
+
+```bash
+sudo dnf update
+sudo dnf install boost-devel libcurl-devel gcc-c++ make
+```
+
+### Debian / Ubuntu
+
+```bash
+sudo apt update
+sudo apt install libboost-all-dev libcurl4-openssl-dev build-essential
+```
+
+### Build
+
+Once dependencies are installed:
+
+```bash
+make
+```
+
+That’s it — the `weather-alerts` binary will be produced in the project directory.
+
+---
+
+## Manual / Advanced Build (Optional)
+
+If you prefer to build Boost manually (for custom versions, static linking, or non-standard environments), follow the steps below.
+
+### 1. Install libcurl
+
+**Debian / Ubuntu**
+
+```bash
+sudo apt install libcurl4-openssl-dev
+```
+
+**Fedora**
+
+```bash
+sudo dnf install libcurl-devel
+```
+
+---
+
+### 2. Build Boost Manually
+
+Download Boost from:
+[https://www.boost.org/](https://www.boost.org/)
+
+Then:
+
+```bash
+./bootstrap.sh
+./b2 --with-program_options runtime-link=static link=static address-model=64
+```
+
+> Note: Adjust `address-model` or linkage options if targeting non-x86_64 systems.
+
+---
+
+### 3. Build Weather Alerts Manually
+
+Example compile command:
+
+```bash
+g++ -Wall -std=c++17 \
+  -I/path/to/boost \
+  weather-alerts.cpp \
+  -L/path/to/boost/stage/lib \
+  -lboost_program_options \
+  -lcurl \
+  -lpthread \
+  -o weather-alerts
+```
+
+Or simply use:
+
+```bash
+make
+```
+
+if you’ve configured the Makefile appropriately.
+
+---
+
+## Usage
+
+```bash
+./weather-alerts [options]
+```
+
+### Available Options
+
+```
+-h, --help                 Show help message
+-z, --zipcode <zip>        US ZIP code for weather forecast
+-p, --periods <n>          Number of forecast periods
+-w, --wordwrap             Enable word wrapping (default: enabled)
+-d, --delay <minutes>      Refresh interval
+-r, --retry <minutes>      Retry delay on error
+```
+
+---
+
+## Notes
+
+* Designed to be lightweight and dependency-minimal.
+* Works well on servers, SBCs, and embedded Linux systems.
+* Boost is only used for argument parsing and can be replaced if desired.
+
+---
+
+## Contributing
+
+Pull requests are welcome!
+If you’re adding features or modifying build behavior, please document changes clearly.
+
+---
+
+## License
+
+[Specify license here]
+
