@@ -33,7 +33,7 @@ make
 
 That’s it — the `weather-alerts` binary will be produced in the project directory.
 
-Or use build with CMake:
+Or build with CMake:
 ```bash
 cmake -S . -B build
 cmake --build build
