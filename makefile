@@ -1,6 +1,6 @@
 # Variables
 CXX = g++
-CXXFLAGS = -Os -Wall -Wextra -std=c++17
+CXXFLAGS = -O3 -Wall -Wextra -std=c++17
 GIT_VERSION := $(shell git describe --always --tags)
 
 # Adding conditional flags for Raspberry Pi/armv6
